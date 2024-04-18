@@ -99,3 +99,43 @@ def login():
 
     access_token = create_access_token(identity=user.username)
     return jsonify({'access_token': access_token}), 200
+
+@app.route('/addData', methods=['POST'])
+@log_request
+@jwt_required()
+def addData():
+    current_user = get_jwt_identity()
+    url = request.json.get('url', None)
+    print(request.json)
+    if not url:
+        return jsonify({'message': 'No URL provided'}), 400
+    
+    video_id = url.split('=')[1]
+    transcript = get_transcript(video_id)
+    
+    user_dir = os.path.join(app.config['DATA_DIR'], current_user)
+    filename = f"{int(time.time())}.txt"
+    file_path = os.path.join(user_dir, filename)
+
+    with open(file_path, 'w') as f:
+        f.write(transcript)
+
+    return jsonify({'message': 'Data added successfully'}), 200
+
+@app.route('/summary', methods=['GET'])
+@log_request
+@jwt_required()
+def summary():
+    current_user = get_jwt_identity()
+    url = request.json.get('url', None)
+    print(request.json)
+    if not url:
+        return jsonify({'message': 'No URL provided'}), 400
+    
+    video_id = url.split('=')[1]
+    transcript = get_transcript(video_id)
+    
+    summary = get_summary(transcript)
+    return summary, 200
+
+    # return jsonify({'message': 'Data added successfully'}), 200
