@@ -184,3 +184,51 @@ def generate():
 
     return jsonify({'message': 'Your Chat is ready now'}), 200
 
+@app.route("/query", methods=["POST"])
+@log_request
+@jwt_required()
+def handle_query():
+    current_user = get_jwt_identity()
+    
+    data = json.loads(request.data)
+    query = data["query"]
+    PERSIST_DIR = os.path.join(app.config["STORAGE_DIR"], current_user)
+    
+    storage_context = StorageContext.from_defaults(persist_dir=PERSIST_DIR)
+    index = load_index_from_storage(storage_context)
+
+    retriever = VectorIndexRetriever(index=index, similarity_top_k=4)
+    postprocessor = SimilarityPostprocessor(similarity_cutoff=0.3)
+
+    query_engine = RetrieverQueryEngine(retriever=retriever, node_postprocessors=[postprocessor])
+    response = query_engine.query(query)
+    pprint_response(response,show_source=True)
+    print(response)
+    return jsonify({"result":str(response)})
+
+
+def get_transcript(video_id):
+    transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+    transcript = ' '.join([d['text'] for d in transcript_list])
+    return transcript
+
+def get_summary(transcript):
+    model_name = "sshleifer/distilbart-cnn-12-6"
+    model = BartForConditionalGeneration.from_pretrained(model_name)
+    tokenizer = BartTokenizer.from_pretrained(model_name)
+
+    summariser = pipeline('summarization', model=model, tokenizer=tokenizer)
+    summary = ''
+    for i in range(0, (len(transcript)//1000)+1):
+        summary_text = summariser(transcript[i*1000:(i+1)*1000])[0]['summary_text']
+        summary = summary + summary_text + ' '
+    return summary
+
+if __name__ == '__main__':
+    if not os.path.exists(app.config['DATA_DIR']):
+        os.makedirs(app.config['DATA_DIR'])
+    if not os.path.exists(app.config['STORAGE_DIR']):
+        os.makedirs(app.config['STORAGE_DIR'])
+    app.run(debug=True)
+
+from flask_migrate import init, migrate, upgrade
