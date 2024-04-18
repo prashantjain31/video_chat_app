@@ -139,3 +139,48 @@ def summary():
     return summary, 200
 
     # return jsonify({'message': 'Data added successfully'}), 200
+
+@app.route('/removeData', methods=['POST'])
+@log_request
+@jwt_required()
+def removeData():
+    current_user = get_jwt_identity()
+    user_dir = os.path.join(app.config['DATA_DIR'], current_user)
+    storage_dir = os.path.join(app.config['STORAGE_DIR'], current_user)
+
+    # Delete user directory and all its contents
+    try:
+        shutil.rmtree(user_dir)
+        shutil.rmtree(storage_dir)
+    except Exception as e:
+        return jsonify({'message': f'Error deleting data: {str(e)}'}), 500
+
+    os.makedirs(user_dir, exist_ok=True)
+    os.makedirs(storage_dir, exist_ok=True)
+
+    return jsonify({'message': 'Data deleted successfully'}), 200
+
+@app.route('/generate', methods=['GET'])
+@log_request
+@jwt_required()
+def generate():
+    current_user = get_jwt_identity()
+    user_dir = os.path.join(app.config['STORAGE_DIR'], current_user)
+
+    # Delete user directory and all its contents
+    try:
+        shutil.rmtree(user_dir)
+    except Exception as e:
+        return jsonify({'message': f'Error deleting data: {str(e)}'}), 500
+
+    # Check if storage already exists
+    os.makedirs(user_dir, exist_ok=True)
+    PERSIST_DIR = user_dir
+    data_path = os.path.join(app.config['DATA_DIR'], current_user)
+    documents = SimpleDirectoryReader(data_path).load_data()
+    index = VectorStoreIndex.from_documents(documents)
+
+    index.storage_context.persist(persist_dir=PERSIST_DIR)
+
+    return jsonify({'message': 'Your Chat is ready now'}), 200
+
