@@ -9,7 +9,7 @@ const Login = () => {
             <Components.SignUpContainer signinIn={signIn}>
                 <Components.Form>
                     <Components.Title>Create Account</Components.Title>
-                    <Components.Input type='text' placeholder='Name' />
+                   
                     <Components.Input type='email' placeholder='Email' />
                     <Components.Input type='password' placeholder='Password' />
                     <Link style={{
