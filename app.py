@@ -122,7 +122,7 @@ def addData():
 
     return jsonify({'message': 'Data added successfully'}), 200
 
-@app.route('/summary', methods=['GET'])
+@app.route('/summary', methods=['POST'])
 @log_request
 @jwt_required()
 def summary():
