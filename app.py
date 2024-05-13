@@ -229,6 +229,6 @@ if __name__ == '__main__':
         os.makedirs(app.config['DATA_DIR'])
     if not os.path.exists(app.config['STORAGE_DIR']):
         os.makedirs(app.config['STORAGE_DIR'])
-    app.run(debug=True)
+    app.run(debug=False, port=5000)
 
 from flask_migrate import init, migrate, upgrade
