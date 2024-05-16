@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, current_app
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -10,7 +10,6 @@ import os
 import time
 import shutil
 from dotenv import load_dotenv
-import gradio as gr
 from llama_index import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.retrievers import VectorIndexRetriever
 from llama_index.query_engine import RetrieverQueryEngine
@@ -23,6 +22,18 @@ from flask import request
 import logging
 import logging.config
 from functools import wraps
+# Replace with your MySQL connection details
+from sqlalchemy_utils import database_exists, create_database
+
+# Replace with your MySQL connection details
+db_uri = 'mysql://prashantjain:prashantjain@localhost/spe_project'
+
+# Create the database if it doesn't exist
+if not database_exists(db_uri):
+    create_database(db_uri)
+    print(f"Database 'spe_project' created successfully.")
+else:
+    print(f"Database 'spe_project' already exists.")
 
 logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
 
@@ -43,7 +54,7 @@ def log_request(func):
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": ["http://localhost:3000"]}})
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://prashantjain:prashantjain@localhost/spe_project'
+app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['JWT_SECRET_KEY'] = 'C2154BF222A336473C81B11EA2DB5C2154BF222A336473C81B11EA2DB5C2154BF222A336473C81B11EA2DB5'
 app.config['DATA_DIR'] = 'data'
 app.config['STORAGE_DIR'] = 'storage'
@@ -59,6 +70,21 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
+
+from sqlalchemy import inspect
+
+def create_user_table():
+    with app.app_context():
+        inspector = inspect(db.engine)
+        if not inspector.has_table(User.__tablename__):
+            try:
+                User.__table__.create(db.engine, checkfirst=True)
+                print("User table created successfully.")
+            except Exception as e:
+                print(f"Error creating user table: {e}")
+        else:
+            print("User table already exists.")
+
 
 @app.route('/register', methods=['POST'])
 @log_request
@@ -225,10 +251,9 @@ def get_summary(transcript):
     return summary
 
 if __name__ == '__main__':
+    create_user_table()
     if not os.path.exists(app.config['DATA_DIR']):
         os.makedirs(app.config['DATA_DIR'])
     if not os.path.exists(app.config['STORAGE_DIR']):
         os.makedirs(app.config['STORAGE_DIR'])
     app.run(debug=False, port=5000)
-
-from flask_migrate import init, migrate, upgrade
