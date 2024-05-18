@@ -1,6 +1,8 @@
 # Use an official Node runtime as the base image
 FROM node:16-alpine
 
+ENV npm_config_timeout=600000
+
 # Set the working directory in the container to /app
 WORKDIR /app
 
