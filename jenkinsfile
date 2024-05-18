@@ -89,9 +89,9 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('', 'dockerhub-credentials') {
-                        docker.image('database').tag('prashantjain31')
-                        docker.image('backend').tag('prashantjain31')
-                        docker.image('frontend').tag('prashantjain31')
+                        sh 'docker tag database prashantjain31/database:latest'
+                        sh 'docker tag frontend prashantjain31/frontend:latest'
+                        sh 'docker tag backend prashantjain31/backend:latest'
                         docker.image('prashantjain31/database').push()
                         docker.image('prashantjain31/backend').push()
                         docker.image('prashantjain31/frontend').push()
