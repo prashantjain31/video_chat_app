@@ -1,12 +1,7 @@
 version: '3'
 services:
   db:
-    image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: prashantjain
-      MYSQL_DATABASE: spe_project
-      MYSQL_USER: prashantjain
-      MYSQL_PASSWORD: prashantjain
+    image: database
     volumes:
       - db_data:/var/lib/mysql
     restart: always
