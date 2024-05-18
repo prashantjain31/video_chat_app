@@ -102,15 +102,11 @@ pipeline {
         
         stage('Run Ansible Playbook') {
             steps {
-                withCredentials([string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')]) {
-                    script {
-                        sh 'export OPENAI_API_KEY=${OPENAI_API_KEY}'
-                        ansiblePlaybook(
-                            playbook: 'deploy.yml',
-                            inventory: 'inventory'
-                            
-                        )
-                    }
+                script {
+                    ansiblePlaybook(
+                        playbook: 'deploy.yml',
+                        inventory: 'inventory'
+                    )
                 }
             }
         }
