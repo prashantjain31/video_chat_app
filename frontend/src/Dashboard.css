@@ -1,0 +1,119 @@
+/* Dashboard.css */
+
+.container {
+  padding: 30px;
+  margin-top: 80px;
+  max-width: 100%; /* Set maximum width to 100% for responsiveness */
+}
+
+.btn-style {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px; /* Add margin bottom to create space between buttons and container below */
+}
+
+.btn-style button {
+  background: #ff4b2b;
+  color: #fff;
+  border-radius: 6px;
+  padding: 16px 32px; /* Adjust padding to increase button width */
+  min-width: 120px; /* Set a minimum width to ensure consistency */
+  margin-right: 10px; /* Add right margin to create gap between buttons */
+  border: none;
+  font-size: 18px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.btn-style button:last-child {
+  margin-right: 0; /* Remove right margin from the last button */
+}
+
+.logout-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #ff4b2b;
+  color: #fff;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+}
+
+h2 {
+  font-size: 48px;
+  color: #2b2d38;
+  text-align: center;
+  letter-spacing: -0.2px;
+  font-family: "Merriweather", serif;
+}
+
+.text-box {
+  width: 100%;
+  max-width: 50rem;
+  height: 100px; /* Set a fixed height for the text box */
+  padding: 18px;
+  box-shadow: 0 12px 48px 0px rgba(109, 117, 141, 0.2);
+  background: #fff;
+  border: 1px solid #e7e9f5;
+  border-radius: 16px;
+  margin-bottom: 20px; /* Add margin bottom to create space between text box and buttons */
+}
+
+.main-content {
+  max-width: 100%;
+  width: 100%;
+  min-height: 400px;
+  padding: 18px;
+  box-shadow: 0 12px 48px 0px rgba(109, 117, 141, 0.2);
+  background: #fff;
+  border: 1px solid #e7e9f5;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+/* Dashboard.css */
+
+.chatbot-container {
+  max-width: 100%;
+  width: 100%;
+  min-height: 400px;
+  padding: 18px;
+  box-shadow: 0 12px 48px 0px rgba(109, 117, 141, 0.2);
+  background: #fff;
+  border: 1px solid #e7e9f5;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  overflow-y: auto; /* Enable vertical scroll if content exceeds container height */
+}
+
+
+/* Additional Styles */
+.react-chatbot-kit-chat-container {
+  position: relative;
+  width: 100% !important; /* Set the width of the chat container to 100% */
+}
+
+.react-chatbot-kit-chat-bot-message {
+  width: auto !important; /* Ensure chatbot messages have auto width */
+}
+
+
+.summary {
+  background: #ff4b2b;
+  color: #fff;
+  border-radius: 6px;
+  padding: 16px 32px;
+  border: none;
+  font-size: 18px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.summary:focus,
+.summary:hover {
+  background: #2ac9a4;
+  box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.1);
+}

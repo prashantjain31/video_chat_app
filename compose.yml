@@ -1,0 +1,31 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: prashantjain
+      MYSQL_DATABASE: spe_project
+      MYSQL_USER: prashantjain
+      MYSQL_PASSWORD: prashantjain
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+
+  backend:
+    image: backend
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+  
+  frontend:
+    image: frontend
+    ports:
+      - "3000:3000"
+      
+volumes:
+  db_data:
