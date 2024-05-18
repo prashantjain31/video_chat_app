@@ -1,0 +1,27 @@
+---
+- name: Pull Docker Image from Docker Hub
+  hosts: localhost
+  remote_user: prashantjain
+  become: false
+  tasks:
+    - name: Pull Database Image
+      docker_image:
+        name: "prashantjain31/database"
+        source: pull
+    
+    - name: Pull Backend Image
+      docker_image:
+        name: "prashantjain31/backend"
+        source: pull
+    
+    - name: Pull Frontend Image
+      docker_image:
+        name: "prashantjain31/frontend"
+        source: pull
+    
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+    - name: Running container
+      shell: docker-compose up --build
