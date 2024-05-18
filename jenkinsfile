@@ -17,7 +17,7 @@ pipeline {
             steps {
                 dir('database') {
                     script {
-                        docker.build('database', .)
+                        docker.build('database', ".")
                     }
                 }
             }
