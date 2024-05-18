@@ -88,7 +88,7 @@ pipeline {
         stage('Push Images') {
             steps {
                 script {
-                    docker.withRegistry('', "${DOCKERHUB_CREDENTIALS}") {
+                    docker.withRegistry('', 'dockerhub-credentials') {
                         docker.image('database').tag('prashantjain31')
                         docker.image('backend').tag('prashantjain31')
                         docker.image('frontend').tag('prashantjain31')
