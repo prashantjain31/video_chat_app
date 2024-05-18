@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'devops', credentialsId: '${GITHUB_CREDENTIALS}', url: 'https://github.com/prashantjain31/video_chat_app.git'
+                git branch: 'devops', url: 'https://github.com/prashantjain31/video_chat_app.git'
             }
         }
 
@@ -56,7 +56,6 @@ pipeline {
                         echo "Building image ${imageName} as it is not found locally or on Docker Hub."
                         docker.build(imageName, ".")
                         docker.image(imageName).tag("prashantjain31")
-                        docker.image(repository).push()
                         echo "Image ${repository} built and pushed to Docker Hub."
                     }
                 }
