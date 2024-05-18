@@ -79,7 +79,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     script {
-                        docker.build('prashantjain31/frontend')
+                        docker.build('frontend')
                     }
                 }
             }
