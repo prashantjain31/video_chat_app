@@ -1,0 +1,104 @@
+pipeline {
+    agent any
+
+    environment {
+        GITHUB_CREDENTIALS = credentials('github-credentials')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'devops', credentialsId: '${GITHUB_CREDENTIALS}', url: 'https://github.com/prashantjain31/video_chat_app.git'
+            }
+        }
+
+        stage('Build Database Image') {
+            steps {
+                dir('database') {
+                    script {
+                        docker.build('database', .)
+                    }
+                }
+            }
+        }
+
+        stage('Build Backend Requirements Image') {
+            steps {
+                script {
+                    def imageName = 'backend_requirements'
+                    def repository = 'prashantjain31/backend_requirements'
+                    def imageExistsLocally = false
+                    def imageExistsOnHub = false
+
+                    // Check if the image exists locally
+                    try {
+                        docker.image(repository).inspect()
+                        imageExistsLocally = true
+                        echo "Image ${repository} found locally."
+                    } catch (Exception e) {
+                        echo "Image ${repository} not found locally."
+                    }
+
+                    // Check if the image exists on Docker Hub if not found locally
+                    if (!imageExistsLocally) {
+                        try {
+                            docker.image(repository).pull()
+                            imageExistsOnHub = true
+                            echo "Image ${repository} found on Docker Hub."
+                        } catch (Exception e) {
+                            echo "Image ${repository} not found on Docker Hub."
+                        }
+                    }
+
+                    // Build the image if it doesn't exist locally or on Docker Hub
+                    if (!imageExistsLocally && !imageExistsOnHub) {
+                        echo "Building image ${imageName} as it is not found locally or on Docker Hub."
+                        docker.build(imageName, ".")
+                        docker.image(imageName).tag("prashantjain31")
+                        docker.image(repository).push()
+                        echo "Image ${repository} built and pushed to Docker Hub."
+                    }
+                }
+            }
+        }
+
+        stage('Build Backend Image') {
+            steps {
+                script {
+                    def backendImageName = 'backend'
+                    withCredentials([string(credentialsId: 'OPENAI_API_KEY', variable: 'OPENAI_API_KEY')]) {
+                        dir('backend') {
+                            docker.build(backendImageName, "--build-arg OPENAI_API_KEY=${OPENAI_API_KEY} .")
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Frontend Image') {
+            steps {
+                dir('frontend') {
+                    script {
+                        docker.build('prashantjain31/frontend')
+                    }
+                }
+            }
+        }
+
+        stage('Push Images') {
+            steps {
+                script {
+                    docker.withRegistry('', "${DOCKERHUB_CREDENTIALS}") {
+                        docker.image('database').tag('prashantjain31')
+                        docker.image('backend').tag('prashantjain31')
+                        docker.image('frontend').tag('prashantjain31')
+                        docker.image('prashantjain31/database').push()
+                        docker.image('prashantjain31/backend').push()
+                        docker.image('prashantjain31/frontend').push()
+                    }
+                }
+            }
+        }
+    }
+}
