@@ -4,6 +4,7 @@ pipeline {
     environment {
         GITHUB_CREDENTIALS = credentials('github-credentials')
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        OPENAI_API_KEY = credentials('OPENAI_API_KEY')
     }
 
     stages {
@@ -100,15 +101,18 @@ pipeline {
             }
         }
         
-        // stage('Run Ansible Playbook') {
-        //     steps {
-        //         script {
-        //             ansiblePlaybook(
-        //                 playbook: 'deploy.yml',
-        //                 inventory: 'inventory'
-        //             )
-        //         }
-        //     }
-        // }
+        stage('Run Ansible Playbook') {
+            steps {
+                script {
+                    ansiblePlaybook(
+                        playbook: 'deploy.yml',
+                        inventory: 'inventory',
+                        extraVars: [
+                            OPENAI_API_KEY: "${OPENAI_API_KEY}"
+                        ]
+                    )
+                }
+            }
+        }
     }
 }

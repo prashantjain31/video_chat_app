@@ -23,5 +23,10 @@
       service:
         name: docker
         state: started
-    - name: Running container
-      shell: docker-compose up --build
+    - name: Start containers with Docker Compose
+      docker_compose:
+        project_src: ./compose.yml
+        build: yes
+        detached: yes
+        env:
+          OPENAI_API_KEY: "{{ OPENAI_API_KEY }}"
