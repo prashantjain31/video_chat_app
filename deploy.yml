@@ -24,4 +24,6 @@
         name: docker
         state: started
     - name: Running container
-      shell: docker-compose up --build
+      shell: |
+        export OPENAI_API_KEY={{ lookup('env', 'OPENAI_API_KEY') }}
+        docker-compose up --build
