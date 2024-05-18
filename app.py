@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify, current_app
-from flask_cors import CORS
+from flask import Flask, request, jsonify, current_app, make_response
+from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
@@ -26,7 +26,7 @@ from functools import wraps
 from sqlalchemy_utils import database_exists, create_database
 
 # Replace with your MySQL connection details
-db_uri = 'mysql://prashantjain:prashantjain@localhost/spe_project'
+db_uri = 'mysql://prashantjain:prashantjain@db/spe_project'
 
 # Create the database if it doesn't exist
 if not database_exists(db_uri):
@@ -53,7 +53,8 @@ def log_request(func):
     return wrapper
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": ["http://localhost:3000"]}})
+# CORS(app, resources={r"/*": {"origins": "*", "methods": "*", "allow_headers": "*"}})
+CORS(app, supports_credentials=True, origins="http://localhost:3000")
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['JWT_SECRET_KEY'] = 'C2154BF222A336473C81B11EA2DB5C2154BF222A336473C81B11EA2DB5C2154BF222A336473C81B11EA2DB5'
 app.config['DATA_DIR'] = 'data'
@@ -86,7 +87,8 @@ def create_user_table():
             print("User table already exists.")
 
 
-@app.route('/register', methods=['POST'])
+@app.route('/register', methods=['POST', "OPTIONS"])
+@cross_origin()
 @log_request
 def register():
     username = request.json.get('username', None)
@@ -102,7 +104,6 @@ def register():
     new_user = User(username=username, password=generate_password_hash(password))
     db.session.add(new_user)
     db.session.commit()
-
     user_dir = os.path.join(app.config['DATA_DIR'], username)
     os.makedirs(user_dir, exist_ok=True)
     user_storage_dir = os.path.join(app.config['STORAGE_DIR'], username)
@@ -110,7 +111,8 @@ def register():
 
     return jsonify({'message': 'User created successfully'}), 201
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST', "OPTIONS"])
+@cross_origin()
 @log_request
 def login():
     username = request.json.get('username', None)
@@ -126,8 +128,9 @@ def login():
     access_token = create_access_token(identity=user.username)
     return jsonify({'access_token': access_token}), 200
 
-@app.route('/addData', methods=['POST'])
+@app.route('/addData', methods=['POST', "OPTIONS"])
 @log_request
+@cross_origin()
 @jwt_required()
 def addData():
     current_user = get_jwt_identity()
@@ -148,8 +151,9 @@ def addData():
 
     return jsonify({'message': 'Data added successfully'}), 200
 
-@app.route('/summary', methods=['POST'])
+@app.route('/summary', methods=['POST', "OPTIONS"])
 @log_request
+@cross_origin()
 @jwt_required()
 def summary():
     current_user = get_jwt_identity()
@@ -166,8 +170,9 @@ def summary():
 
     # return jsonify({'message': 'Data added successfully'}), 200
 
-@app.route('/removeData', methods=['POST'])
+@app.route('/removeData', methods=['POST', "OPTIONS"])
 @log_request
+@cross_origin()
 @jwt_required()
 def removeData():
     current_user = get_jwt_identity()
@@ -186,8 +191,9 @@ def removeData():
 
     return jsonify({'message': 'Data deleted successfully'}), 200
 
-@app.route('/generate', methods=['GET'])
+@app.route('/generate', methods=['GET', "OPTIONS"])
 @log_request
+@cross_origin()
 @jwt_required()
 def generate():
     current_user = get_jwt_identity()
@@ -210,8 +216,9 @@ def generate():
 
     return jsonify({'message': 'Your Chat is ready now'}), 200
 
-@app.route("/query", methods=["POST"])
+@app.route("/query", methods=["POST", "OPTIONS"])
 @log_request
+@cross_origin()
 @jwt_required()
 def handle_query():
     current_user = get_jwt_identity()
@@ -256,4 +263,4 @@ if __name__ == '__main__':
         os.makedirs(app.config['DATA_DIR'])
     if not os.path.exists(app.config['STORAGE_DIR']):
         os.makedirs(app.config['STORAGE_DIR'])
-    app.run(debug=False, port=5000)
+    app.run(debug=True, port=5000, host="0.0.0.0")
