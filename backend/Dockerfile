@@ -31,6 +31,4 @@ RUN echo "OPENAI_API_KEY=$OPENAI_API_KEY" > .env
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
-RUN "python test_app.py"
-
 CMD ["python", "app.py"]

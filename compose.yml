@@ -1,15 +1,15 @@
 version: '3'
 services:
   db:
-    image: database
+    image: prashantjain31/database
     volumes:
       - db_data:/var/lib/mysql
     restart: always
 
   backend:
-    image: backend
-    volumes:
-      - .:/app
+    image: prashantjain31/backend
+    # volumes:
+    #   - .:/app
     ports:
       - "5000:5000"
     depends_on:
@@ -18,7 +18,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
   
   frontend:
-    image: frontend
+    image: prashantjain31/frontend
     ports:
       - "3000:3000"
       
